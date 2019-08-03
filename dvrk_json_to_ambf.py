@@ -7,7 +7,7 @@ tool_info = {
     "author": "Adnan Munawar",
     "version": (0, 1),
     "description": "Tool to convert a URDF to AMBF for AMBF Framework",
-    "url": "https://github.com/adnanmunawar/urdf_2_ambf",
+    "url": "https://github.com/adnanmunawar/dvrk_json_to_ambf",
     }
 
 
@@ -590,9 +590,15 @@ class CreateAMBF:
         trans_bINa = Frame(rot_bINa, pos_bINa)
 
         parent_pivot = {'x': 0, 'y': 0, 'z': 0}
-        child_pivot = {'x': pos_bINa[0], 'y': pos_bINa[1], 'z': pos_bINa[1]}
+
+        child_pivot = {'x': round(pos_bINa[0], 3),
+                       'y': round(pos_bINa[1], 3),
+                       'z': round(pos_bINa[1], 3)}
+
         parent_axis = {'x': 0, 'y': 0, 'z': 1}
-        child_axis = {'x': rot_bINa[0, 2], 'y': rot_bINa[1, 2], 'z': [2, 2]}
+        child_axis = {'x': round(rot_bINa[0, 2], 3),
+                      'y': round(rot_bINa[1, 2], 3),
+                      'z': round(rot_bINa[2, 2], 3)}
 
         joint_data['parent_axis'] = parent_axis
         joint_data['parent_pivot'] = parent_pivot
@@ -637,7 +643,7 @@ class CreateAMBF:
             ambf_link_data['color'] = 'random'
             ambf_links[link_name] = ambf_link_data
             self._body_names_list.append(link_name)
-            self._ambf_config[link_name] = ambf_link
+            self._ambf_config[link_name] = ambf_link_data
 
         ambf_joints = OrderedDict()
         for n_joint in range(0, num_dvrk_joints):
@@ -656,7 +662,7 @@ class CreateAMBF:
             self.convert_DH_to_ambf_joint(a, alpha, d, theta, ambf_joint_data)
             ambf_joints[joint_name] = ambf_joint_data
             self._joint_names_list.append(joint_name)
-            self._ambf_config[joint_name] = ambf_joint
+            self._ambf_config[joint_name] = ambf_joint_data
 
     def save_ambf_config(self, output_file):
         self._save_as = output_file
