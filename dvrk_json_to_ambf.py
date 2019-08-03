@@ -589,22 +589,29 @@ class CreateAMBF:
 
         trans_bINa = Frame(rot_bINa, pos_bINa)
 
-        parent_pivot = {'x': 0, 'y': 0, 'z': 0}
-
-        child_pivot = {'x': round(pos_bINa[0], 3),
+        parent_pivot = {'x': round(pos_bINa[0], 3),
                        'y': round(pos_bINa[1], 3),
-                       'z': round(pos_bINa[1], 3)}
+                       'z': round(pos_bINa[2], 3)}
+
+        child_pivot = {'x': 0, 'y': 0, 'z': 0}
 
         parent_axis = {'x': 0, 'y': 0, 'z': 1}
         child_axis = {'x': round(rot_bINa[0, 2], 3),
                       'y': round(rot_bINa[1, 2], 3),
                       'z': round(rot_bINa[2, 2], 3)}
 
-        joint_data['parent_axis'] = parent_axis
-        joint_data['parent_pivot'] = parent_pivot
+        print(parent_pivot)
+        print(parent_axis)
 
-        joint_data['child_pivot'] = child_pivot
-        joint_data['child_axis'] = child_axis
+        print(child_pivot)
+        print(child_axis)
+        print('---------')
+
+        joint_data['parent axis'] = parent_axis
+        joint_data['parent pivot'] = parent_pivot
+
+        joint_data['child pivot'] = child_pivot
+        joint_data['child axis'] = child_axis
 
     def generate_ambf_config(self, json_robot):
         self._ambf_config = OrderedDict()
@@ -659,6 +666,8 @@ class CreateAMBF:
             d = json_dvrk_joints[n_joint]['D']
             ambf_joint_data['offset'] = json_dvrk_joints[n_joint]['offset']
             ambf_joint_data['type'] = json_dvrk_joints[n_joint]['type']
+            ambf_joint_data['parent'] = self._body_names_list[n_joint]
+            ambf_joint_data['child'] = self._body_names_list[n_joint + 1]
             self.convert_DH_to_ambf_joint(a, alpha, d, theta, ambf_joint_data)
             ambf_joints[joint_name] = ambf_joint_data
             self._joint_names_list.append(joint_name)
