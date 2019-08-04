@@ -581,17 +581,17 @@ class CreateAMBF:
 
     def convert_DH_to_ambf_joint(self, a, alpha, d, theta, joint_data):
 
-        rot_bINa = Rotation(math.cos(theta), - math.sin(theta) * math.cos(alpha), math.sin(theta) * math.sin(alpha),
-                            math.sin(theta), - math.cos(theta) * math.cos(alpha), math.cos(theta) * math.sin(alpha),
-                                          0,                   - math.sin(alpha),                  math.cos(alpha))
+        rot_bINa = Rotation(math.cos(theta), - math.sin(theta) * math.cos(alpha),   math.sin(theta) * math.sin(alpha),
+                            math.sin(theta),   math.cos(theta) * math.cos(alpha), - math.cos(theta) * math.sin(alpha),
+                                          0,                     math.sin(alpha),                     math.cos(alpha))
 
-        pos_bINa = Vector(a * math.cos(alpha), a * math.sin(alpha), d)
+        pos_bINa = Vector(a * math.cos(theta), a * math.sin(theta), d)
 
         trans_bINa = Frame(rot_bINa, pos_bINa)
 
         parent_pivot = {'x': round(pos_bINa[0], 3),
-                       'y': round(pos_bINa[1], 3),
-                       'z': round(pos_bINa[2], 3)}
+                        'y': round(pos_bINa[1], 3),
+                        'z': round(pos_bINa[2], 3)}
 
         child_pivot = {'x': 0, 'y': 0, 'z': 0}
 
@@ -655,7 +655,7 @@ class CreateAMBF:
             self._body_names_list.append(link_name)
             self._ambf_config[link_name] = ambf_link_data
 
-        shortest_link_dim = 0.1
+        shortest_link_dim = 1
         ambf_joints = OrderedDict()
         for n_joint in range(0, num_dvrk_joints):
             ambf_joint = JointTemplate()
@@ -679,6 +679,8 @@ class CreateAMBF:
             # Make sure that the parents geometry is scaled to link length
             link_dim = max(a, d)
             if link_dim > 0:
+                if link_dim < shortest_link_dim:
+                    shortest_link_dim = link_dim
                 ambf_links[parent_name]['geometry']['radius'] = round(link_dim / 5, 3)
             else:
                 ambf_links[parent_name]['geometry']['radius'] = round(shortest_link_dim / 5, 3)
