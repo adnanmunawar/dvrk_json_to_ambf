@@ -646,8 +646,8 @@ class CreateAMBF:
             ambf_link_data['name'] = link_name
             mass = 1.0
             ambf_link_data['mass'] = mass
-            ambf_link_data['shape'] = 'Sphere'
-            ambf_link_data['geometry'] = {'radius': 0.1}
+            ambf_link_data['shape'] = 'Cylinder'
+            ambf_link_data['geometry'] = {'radius': 0.1, 'height': 0.2, 'axis': 'z'}
             ambf_link_data['color'] = 'random'
             # Delete Body Inertia if not defined so its computed automatically
             del ambf_link_data['inertia']
@@ -682,8 +682,10 @@ class CreateAMBF:
                 if link_dim < shortest_link_dim:
                     shortest_link_dim = link_dim
                 ambf_links[parent_name]['geometry']['radius'] = round(link_dim / 5, 3)
+                ambf_links[parent_name]['geometry']['height'] = round(link_dim / 2, 3)
             else:
                 ambf_links[parent_name]['geometry']['radius'] = round(shortest_link_dim / 5, 3)
+                ambf_links[parent_name]['geometry']['height'] = round(shortest_link_dim / 2, 3)
 
             self.convert_DH_to_ambf_joint(a, alpha, d, theta, ambf_joint_data)
             ambf_joints[joint_name] = ambf_joint_data
