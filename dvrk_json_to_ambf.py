@@ -644,14 +644,18 @@ class CreateAMBF:
             ambf_link_data = ambf_link.ambf_data
             link_name = 'Link ' + str(n_link)
             ambf_link_data['name'] = link_name
-            ambf_link_data['mass'] = 1.0
+            mass = 1.0
+            ambf_link_data['mass'] = mass
             ambf_link_data['shape'] = 'Sphere'
-            ambf_link_data['shape geometry'] = {'radius': 0.1}
+            ambf_link_data['geometry'] = {'radius': 0.1}
             ambf_link_data['color'] = 'random'
+            # Delete Body Inertia if not defined so its computed automatically
+            del ambf_link_data['inertia']
             ambf_links[link_name] = ambf_link_data
             self._body_names_list.append(link_name)
             self._ambf_config[link_name] = ambf_link_data
 
+        shortest_link_dim = 0.1
         ambf_joints = OrderedDict()
         for n_joint in range(0, num_dvrk_joints):
             ambf_joint = JointTemplate()
@@ -666,8 +670,19 @@ class CreateAMBF:
             d = json_dvrk_joints[n_joint]['D']
             ambf_joint_data['offset'] = json_dvrk_joints[n_joint]['offset']
             ambf_joint_data['type'] = json_dvrk_joints[n_joint]['type']
-            ambf_joint_data['parent'] = self._body_names_list[n_joint]
-            ambf_joint_data['child'] = self._body_names_list[n_joint + 1]
+            parent_name = self._body_names_list[n_joint]
+            child_name = self._body_names_list[n_joint + 1]
+            ambf_joint_data['parent'] = parent_name
+            ambf_joint_data['child'] = child_name
+            mass = ambf_links[parent_name]['mass']
+            ambf_joint_data['controller'] = {'P': mass * 100, 'D': mass / 50}
+            # Make sure that the parents geometry is scaled to link length
+            link_dim = max(a, d)
+            if link_dim > 0:
+                ambf_links[parent_name]['geometry']['radius'] = round(link_dim / 5, 3)
+            else:
+                ambf_links[parent_name]['geometry']['radius'] = round(shortest_link_dim / 5, 3)
+
             self.convert_DH_to_ambf_joint(a, alpha, d, theta, ambf_joint_data)
             ambf_joints[joint_name] = ambf_joint_data
             self._joint_names_list.append(joint_name)
