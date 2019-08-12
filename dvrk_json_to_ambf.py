@@ -587,18 +587,33 @@ class CreateAMBF:
 
         pos_bINa = Vector(a * math.cos(theta), a * math.sin(theta), d)
 
+        for i in range(0, 3):
+            pos_bINa[i] = round(pos_bINa[i], 3)
+            for j in range(0, 3):
+                rot_bINa[i, j] = round(rot_bINa[i, j], 3)
+
         trans_bINa = Frame(rot_bINa, pos_bINa)
+        # The child pivot and axis defined the joint in child frame. So we set
+        # the parent pivot and axis to zero and default respectively and then
+        # invert the Trans of B in A to get Trans of A in B and set the child
+        # pivot and axis based on that
+        trans_aINb = trans_bINa.Inverse()
 
-        parent_pivot = {'x': round(pos_bINa[0], 3),
-                        'y': round(pos_bINa[1], 3),
-                        'z': round(pos_bINa[2], 3)}
+        print('DH: a: %s  alpha: %s  d: %s  theta: %s', a, alpha, d, theta)
+        print(rot_bINa)
+        print(pos_bINa)
+        print('------')
 
-        child_pivot = {'x': 0, 'y': 0, 'z': 0}
-
+        parent_pivot = {'x': 0, 'y': 0, 'z': 0}
         parent_axis = {'x': 0, 'y': 0, 'z': 1}
-        child_axis = {'x': round(rot_bINa[0, 2], 3),
-                      'y': round(rot_bINa[1, 2], 3),
-                      'z': round(rot_bINa[2, 2], 3)}
+
+        child_pivot = {'x': round(trans_aINb.p[0], 3),
+                       'y': round(trans_aINb.p[1], 3),
+                       'z': round(trans_aINb.p[2], 3)}
+
+        child_axis = {'x': round(trans_aINb.M[0, 2], 3),
+                      'y': round(trans_aINb.M[1, 2], 3),
+                      'z': round(trans_aINb.M[2, 2], 3)}
 
         print(parent_pivot)
         print(parent_axis)
